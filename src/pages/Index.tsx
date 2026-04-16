@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Icon from "@/components/ui/icon";
 
 const HERO_IMG = "https://cdn.poehali.dev/projects/8c2cce17-5f63-4dbd-bdda-17d55a880e51/files/3d66805f-c11b-4581-ae36-cf74b2fcee6b.jpg";
@@ -97,6 +97,21 @@ export default function Index() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [formData, setFormData] = useState({ name: "", phone: "", message: "" });
   const [formSent, setFormSent] = useState(false);
+  const [scrollY, setScrollY] = useState(0);
+  const heroRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (heroRef.current) {
+        const rect = heroRef.current.getBoundingClientRect();
+        if (rect.bottom > 0) {
+          setScrollY(window.scrollY);
+        }
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -162,9 +177,20 @@ export default function Index() {
       </header>
 
       {/* ─── HERO ─── */}
-      <section id="home" className="relative min-h-screen flex items-center overflow-hidden pt-16">
+      <section id="home" ref={heroRef} className="relative min-h-screen flex items-center overflow-hidden pt-16">
         <div className="absolute inset-0 z-0">
-          <img src={HERO_IMG} alt="Живая зелёная стена" className="w-full h-full object-cover" />
+          <img
+            src={HERO_IMG}
+            alt="Живая зелёная стена"
+            className="w-full object-cover"
+            style={{
+              height: "120%",
+              top: "-10%",
+              position: "absolute",
+              transform: `translateY(${scrollY * 0.4}px)`,
+              willChange: "transform",
+            }}
+          />
           <div className="absolute inset-0" style={{ background: "linear-gradient(to right, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.4) 55%, transparent 100%)" }} />
         </div>
 
